@@ -1,31 +1,47 @@
 use yew::prelude::*;
 
+enum Msg {
+    AddOne,
+}
 
 struct Model {
-    value: i64
+    value: i64,
 }
 
-#[function_component(App)]
-fn app() -> Html {
-    let state = use_state( || Model {
-        value: 0
-    });
+impl Component for Model {
+    type Message = Msg;
+    type Properties = ();
 
-    let onclick = {
-        let state = state.clone();
-        Callback::from(move |_| state.set(Model { value: state.value + 1 }))
-    };
-
-    html! {
-        <div>
-            <button onclick = {onclick}>{ "+1" }</button>
-            <p>{ state.value }</p>
-        </div>
+    fn create(_ctx: &Context<Self>) -> Self {
+        Self {
+            value: 0,
+        }
     }
 
- 
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Msg::AddOne => {
+                self.value += 1;
+                // the value has changed so we need to
+                // returning true tells the component it needs to rerender
+                true
+            }
+        }
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        // This gives us a component's "`Scope`" which allows us to send messages, etc to the component.
+        // still a little unclear on this part.
+        let link = ctx.link();
+        html! {
+            <div>
+                <button onclick={link.callback(|_| Msg::AddOne)}>{ "+1" }</button>
+                <p>{ self.value }</p>
+            </div>
+        }
+    }
 }
 
-fn main(){
-    yew::start_app::<App>();
+fn main() {
+    yew::start_app::<Model>();
 }
